@@ -1,7 +1,20 @@
-examples/even-number-of-ones/*.txt linguist-detectable=true
+# Core FSM library files
+core/*.c linguist-detectable=true
+core/*.h linguist-detectable=true
+
+# Example projects - make these detectable
 examples/even-number-of-ones/*.c linguist-detectable=true
+examples/even-number-of-ones/*.h linguist-detectable=true
+examples/even-number-of-ones/CMakeLists.txt linguist-detectable=true
+examples/even-number-of-ones/build.sh linguist-detectable=true
 
-examples/recognize-strings-ending-with-ab/*.txt linguist-detectable=true
 examples/recognize-strings-ending-with-ab/*.c linguist-detectable=true
+examples/recognize-strings-ending-with-ab/*.h linguist-detectable=true
+examples/recognize-strings-ending-with-ab/CMakeLists.txt linguist-detectable=true
+examples/recognize-strings-ending-with-ab/build.sh linguist-detectable=true
 
+# Third-party library - exclude from language statistics
 lib/safety/sstring/core/*.c linguist-detectable=false
+lib/safety/sstring/core/*.h linguist-detectable=false
+lib/safety/sstring/examples/*.c linguist-detectable=false
+lib/safety/sstring/tests/*.c linguist-detectable=false
