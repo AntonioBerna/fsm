@@ -1,4 +1,4 @@
-# Finite State Machine Designer
+# fsm
 
 ![GitHub repo size](https://img.shields.io/github/repo-size/AntonioBerna/fsm)
 ![GitHub License](https://img.shields.io/github/license/AntonioBerna/fsm)
