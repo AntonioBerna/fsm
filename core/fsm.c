@@ -41,6 +41,27 @@ fsm_t *fsm_create(const char *name) {
         return NULL;
     }
 
+    // Initialize dynamic arrays
+    fsm->vertex_capacity = INITIAL_VERTICES_CAPACITY;
+    fsm->edge_capacity = INITIAL_EDGES_CAPACITY;
+    
+    fsm->vertices = (vertex_t *)malloc(fsm->vertex_capacity * sizeof(vertex_t));
+    if (!fsm->vertices) {
+        fprintf(stderr, "Error: Failed to allocate memory for vertices array\n");
+        string_destroy(fsm->name);
+        free(fsm);
+        return NULL;
+    }
+    
+    fsm->edges = (edge_t *)malloc(fsm->edge_capacity * sizeof(edge_t));
+    if (!fsm->edges) {
+        fprintf(stderr, "Error: Failed to allocate memory for edges array\n");
+        free(fsm->vertices);
+        string_destroy(fsm->name);
+        free(fsm);
+        return NULL;
+    }
+
     fsm->vertex_count = 0;
     fsm->edge_count = 0;
     fsm->next_vertex_id = 1;
@@ -71,8 +92,62 @@ void fsm_destroy(fsm_t *fsm) {
             string_destroy(fsm->edges[i].label);
         }
 
+        // Free dynamic arrays
+        free(fsm->vertices);
+        free(fsm->edges);
+        
         free(fsm);
     }
+}
+
+/*
+ * ========================================
+ * Dynamic Array Management Helper Functions
+ * ========================================
+ */
+
+/**
+ * @brief Grow the vertices array capacity if needed
+ * @param fsm Pointer to the FSM
+ * @return 0 on success, -1 on failure
+ * @details Uses realloc to double the vertices array capacity when full
+ */
+static int fsm_grow_vertices_if_needed(fsm_t *fsm) {
+    if (fsm->vertex_count >= fsm->vertex_capacity) {
+        int new_capacity = fsm->vertex_capacity * GROWTH_FACTOR;
+        vertex_t *new_vertices = (vertex_t *)realloc(fsm->vertices, new_capacity * sizeof(vertex_t));
+        
+        if (!new_vertices) {
+            fprintf(stderr, "Error: Failed to reallocate memory for vertices array\n");
+            return -1;
+        }
+        
+        fsm->vertices = new_vertices;
+        fsm->vertex_capacity = new_capacity;
+    }
+    return 0;
+}
+
+/**
+ * @brief Grow the edges array capacity if needed
+ * @param fsm Pointer to the FSM
+ * @return 0 on success, -1 on failure
+ * @details Uses realloc to double the edges array capacity when full
+ */
+static int fsm_grow_edges_if_needed(fsm_t *fsm) {
+    if (fsm->edge_count >= fsm->edge_capacity) {
+        int new_capacity = fsm->edge_capacity * GROWTH_FACTOR;
+        edge_t *new_edges = (edge_t *)realloc(fsm->edges, new_capacity * sizeof(edge_t));
+        
+        if (!new_edges) {
+            fprintf(stderr, "Error: Failed to reallocate memory for edges array\n");
+            return -1;
+        }
+        
+        fsm->edges = new_edges;
+        fsm->edge_capacity = new_capacity;
+    }
+    return 0;
 }
 
 /*
@@ -92,7 +167,12 @@ void fsm_destroy(fsm_t *fsm) {
  *          not initial, not final). The label is safely copied.
  */
 int fsm_add_vertex(fsm_t *fsm, const char *label, const double x, const double y) {
-    if (!fsm || fsm->vertex_count >= MAX_VERTICES) {
+    if (!fsm) {
+        return -1;
+    }
+
+    // Grow the vertices array if needed
+    if (fsm_grow_vertices_if_needed(fsm) != 0) {
         return -1;
     }
 
@@ -219,7 +299,7 @@ vertex_t *fsm_get_vertex(fsm_t *fsm, const int vertex_id) {
  *          Both vertices must exist before creating the edge.
  */
 int fsm_add_edge(fsm_t *fsm, const int from_vertex_id, const int to_vertex_id, const char *label) {
-    if (!fsm || fsm->edge_count >= MAX_EDGES) {
+    if (!fsm) {
         return -1;
     }
 
@@ -228,6 +308,11 @@ int fsm_add_edge(fsm_t *fsm, const int from_vertex_id, const int to_vertex_id, c
     vertex_t *to_vertex = fsm_get_vertex(fsm, to_vertex_id);
 
     if (!from_vertex || !to_vertex) {
+        return -1;
+    }
+
+    // Grow the edges array if needed
+    if (fsm_grow_edges_if_needed(fsm) != 0) {
         return -1;
     }
 
