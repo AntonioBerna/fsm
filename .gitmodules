@@ -1,0 +1,3 @@
+[submodule "lib/safety"]
+	path = lib/safety
+	url = https://github.com/AntonioBerna/safety.git
