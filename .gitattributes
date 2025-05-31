@@ -3,3 +3,5 @@ examples/even-number-of-ones/*.c linguist-detectable=true
 
 examples/recognize-strings-ending-with-ab/*.txt linguist-detectable=true
 examples/recognize-strings-ending-with-ab/*.c linguist-detectable=true
+
+lib/safety/*.c linguist-detectable=false
