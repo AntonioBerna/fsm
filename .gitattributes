@@ -1,5 +1,5 @@
-examples/even-number-of-ones/*.txt linguist-detecable=true
+examples/even-number-of-ones/*.txt linguist-detectable=true
 examples/even-number-of-ones/*.c linguist-detectable=true
 
-examples/examples/recognize-strings-ending-with-ab/*.txt linguist-detectable=true
-examples/examples/recognize-strings-ending-with-ab/*.c linguist-detectable=true
+examples/recognize-strings-ending-with-ab/*.txt linguist-detectable=true
+examples/recognize-strings-ending-with-ab/*.c linguist-detectable=true
