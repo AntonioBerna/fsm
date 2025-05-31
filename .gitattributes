@@ -1,1 +1,2 @@
-examples/ linguist-detecable=true
+examples/*.txt linguist-detecable=true
+examples/*.c linguist-detectable=true
