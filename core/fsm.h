@@ -40,8 +40,10 @@
 
 #include "sstring.h"
 
-#define MAX_VERTICES 100
-#define MAX_EDGES    200
+// Initial capacity constants for dynamic arrays
+#define INITIAL_VERTICES_CAPACITY 10
+#define INITIAL_EDGES_CAPACITY    20
+#define GROWTH_FACTOR              2
 
 // Greek letter support constants
 #define GREEK_ALPHA     "\\alpha"
@@ -127,14 +129,17 @@ typedef struct {
 /**
  * @brief Main finite state machine structure
  * @details Contains all vertices, edges, and metadata for a complete FSM,
- *          including counters for ID generation and capacity limits
+ *          with dynamic memory allocation for vertices and edges arrays.
+ *          Memory grows automatically as needed using realloc.
  */
 typedef struct {
     string_t *name;                  ///< Safe string for FSM name/description
-    vertex_t vertices[MAX_VERTICES]; ///< Array of vertices (states)
-    edge_t edges[MAX_EDGES];         ///< Array of edges (transitions)
+    vertex_t *vertices;              ///< Dynamic array of vertices (states)
+    edge_t *edges;                   ///< Dynamic array of edges (transitions)
     int vertex_count;                ///< Current number of vertices
     int edge_count;                  ///< Current number of edges
+    int vertex_capacity;             ///< Allocated capacity for vertices array
+    int edge_capacity;               ///< Allocated capacity for edges array
     int next_vertex_id;              ///< Next available vertex ID
     int next_edge_id;                ///< Next available edge ID
 } fsm_t;
