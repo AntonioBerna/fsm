@@ -227,10 +227,6 @@ Let's create a complete example that demonstrates how to build an FSM for a simp
     ```bash
     #!/bin/bash
 
-    # Build script for even-number-of-ones example
-    # This script compiles the code, runs the program, and builds the LaTeX output
-    # Usage: ./build.sh [clean]
-
     exec_name="simple_calculator"
 
     set -e  # Exit on any error
