@@ -34,8 +34,12 @@ Before using this project, ensure you have the following tools installed:
 To get started with the Finite State Machine Designer, you need to clone the repository using the following command:
 
 ```bash
+# Clone the repository
 git clone https://github.com/AntonioBerna/fsm.git
 cd fsm
+
+# Init submodule
+git submodule update --init --recursive
 ```
 
 ### Running Examples
