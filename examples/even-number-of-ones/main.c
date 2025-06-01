@@ -81,12 +81,12 @@ int main(void) {
     int e5 = fsm_add_edge(fsm, even, error, GREEK_EPSILON); // Epsilon transition to error
     int e6 = fsm_add_edge(fsm, odd, error, GREEK_EPSILON);  // Epsilon transition to error
     int e7 = fsm_add_edge(fsm, error, error, "0/1");        // Error state loops
-    
+
     // Unused edges for clarity
     (void)e2;
     (void)e5;
     (void)e6;
-    
+
     // Make some edges curved for better visualization
     fsm_set_edge_curved(fsm, e1, 60); // Self-loop curve for even state
     fsm_set_edge_curved(fsm, e3, 60); // Self-loop curve for odd state

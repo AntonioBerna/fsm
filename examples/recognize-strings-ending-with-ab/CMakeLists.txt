@@ -11,6 +11,7 @@ set(CMAKE_C_COMPILER clang)
 # Set strict compiler flags
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -Werror -pedantic")
 
+# Include directories for FSM and string libraries
 include_directories(../../core)
 include_directories(../../lib/safety/sstring/core)
 

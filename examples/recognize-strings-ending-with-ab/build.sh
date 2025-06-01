@@ -1,14 +1,12 @@
 #!/bin/bash
 
-# Build script for recognize-strings-ending-with-ab example
-# This script compiles the code, runs the program, and builds the LaTeX output
-# Usage: ./build.sh [clean]
+exec_name="recognize_strings_ending_with_ab"
 
 set -e  # Exit on any error
 
 # Function to clean directories
 clean_directories() {
-    echo "=== Cleaning recognize-strings-ending-with-ab example ==="
+    echo "=== Cleaning $exec_name example ==="
     
     # Clean build directory
     if [ -d "build" ]; then
@@ -37,7 +35,7 @@ if [ "$1" = "clean" ]; then
     exit 0
 fi
 
-echo "=== Building recognize-strings-ending-with-ab example ==="
+echo "=== Building $exec_name example ==="
 
 # Step 1: Configure and build the project
 echo "Step 1: Configuring project with CMake..."
@@ -48,7 +46,7 @@ cmake --build build
 
 # Step 2: Run the program to generate LaTeX files
 echo "Step 3: Running the program to generate LaTeX files..."
-./build/recognize_strings_ending_with_ab
+./build/$exec_name
 
 # Step 3: Build the LaTeX output if latex directory exists
 if [ -d "latex" ]; then
