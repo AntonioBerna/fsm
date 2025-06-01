@@ -1,0 +1,31 @@
+\documentclass[tikz]{standalone}
+\usepackage{tikz}
+\usetikzlibrary{automata,positioning,arrows.meta}
+\tikzset{
+    >=Stealth,
+    every edge/.style={draw,->,>=Stealth,thick},
+    every loop/.style={draw,->,>=Stealth,thick}
+}
+\begin{document}
+
+\begin{tikzpicture}[shorten >=1pt,auto,node distance=3cm,
+                    semithick,
+                    state/.style={circle,draw,minimum size=1.5cm}]
+
+% States
+\node[state,initial] (q1) at (0.00cm,0.00cm) {$Start$};
+\node[state,accepting] (q2) at (4.00cm,0.00cm) {$Digit$};
+\node[state] (q3) at (8.00cm,0.00cm) {$Operator$};
+\node[state] (q4) at (4.00cm,-3.00cm) {$Error$};
+
+% Transitions
+\path (q1) edge node {$0-9$} (q2);
+\path (q1) edge [bend left=-30] node {$+,-,*,/$} (q4);
+\path (q2) edge [bend left=15] node {$+,-,*,/$} (q3);
+\path (q2) edge [loop above] node {$0-9$} (q2);
+\path (q3) edge [bend left=15] node {$0-9$} (q2);
+\path (q3) edge [bend left=30] node {$+,-,*,/$} (q4);
+\path (q4) edge [loop above] node {$any$} (q4);
+
+\end{tikzpicture}
+\end{document}
