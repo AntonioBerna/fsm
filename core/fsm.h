@@ -145,9 +145,9 @@ typedef struct {
 } fsm_t;
 
 /*
- * ========================================
+ * ======================================
  * FSM Creation and Management Functions
- * ========================================
+ * ======================================
  */
 
 /**
@@ -170,9 +170,9 @@ fsm_t *fsm_create(const char *name);
 void fsm_destroy(fsm_t *fsm);
 
 /*
- * ========================================
+ * ====================================
  * Vertex (State) Management Functions
- * ========================================
+ * ====================================
  */
 
 /**
@@ -229,9 +229,9 @@ int fsm_set_final_state(fsm_t *fsm, const int vertex_id);
 vertex_t *fsm_get_vertex(fsm_t *fsm, const int vertex_id);
 
 /*
- * ========================================
+ * =======================================
  * Edge (Transition) Management Functions
- * ========================================
+ * =======================================
  */
 
 /**
@@ -269,9 +269,9 @@ int fsm_set_edge_curved(fsm_t *fsm, const int edge_id, const double curve_angle)
 edge_t *fsm_get_edge(fsm_t *fsm, const int edge_id);
 
 /*
- * ========================================
+ * ======================================
  * LaTeX Generation and Output Functions
- * ========================================
+ * ======================================
  */
 
 /**
@@ -294,9 +294,9 @@ int fsm_generate_latex(fsm_t *fsm, const char *filename);
 void fsm_print_latex(fsm_t *fsm);
 
 /*
- * ========================================
+ * ============================
  * Utility and Debug Functions
- * ========================================
+ * ============================
  */
 
 /**
