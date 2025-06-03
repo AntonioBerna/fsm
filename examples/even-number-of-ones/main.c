@@ -60,9 +60,9 @@ int main(void) {
     printf("This FSM accepts strings with an even number of 1s\n\n");
 
     // Add vertices with custom positioning
-    int even = fsm_add_vertex(fsm, "Even", 0, 0);
-    int odd = fsm_add_vertex(fsm, "Odd", 6, 0);
-    int error = fsm_add_vertex(fsm, "Error", 3, -4);
+    size_t even = fsm_add_vertex(fsm, "Even", 0, 0);
+    size_t odd = fsm_add_vertex(fsm, "Odd", 6, 0);
+    size_t error = fsm_add_vertex(fsm, "Error", 3, -4);
 
     // Set vertex properties
     fsm_set_vertex_radius(fsm, even, 1.0);
@@ -74,13 +74,13 @@ int main(void) {
     fsm_set_final_state(fsm, even);
 
     // Add transitions
-    int e1 = fsm_add_edge(fsm, even, even, "0");            // Stay in even on 0
-    int e2 = fsm_add_edge(fsm, even, odd, "1");             // Go to odd on 1
-    int e3 = fsm_add_edge(fsm, odd, odd, "0");              // Stay in odd on 0
-    int e4 = fsm_add_edge(fsm, odd, even, "1");             // Go to even on 1
-    int e5 = fsm_add_edge(fsm, even, error, GREEK_EPSILON); // Epsilon transition to error
-    int e6 = fsm_add_edge(fsm, odd, error, GREEK_EPSILON);  // Epsilon transition to error
-    int e7 = fsm_add_edge(fsm, error, error, "0/1");        // Error state loops
+    size_t e1 = fsm_add_edge(fsm, even, even, "0");            // Stay in even on 0
+    size_t e2 = fsm_add_edge(fsm, even, odd, "1");             // Go to odd on 1
+    size_t e3 = fsm_add_edge(fsm, odd, odd, "0");              // Stay in odd on 0
+    size_t e4 = fsm_add_edge(fsm, odd, even, "1");             // Go to even on 1
+    size_t e5 = fsm_add_edge(fsm, even, error, GREEK_EPSILON); // Epsilon transition to error
+    size_t e6 = fsm_add_edge(fsm, odd, error, GREEK_EPSILON);  // Epsilon transition to error
+    size_t e7 = fsm_add_edge(fsm, error, error, "0/1");        // Error state loops
 
     // Unused edges for clarity
     (void)e2;
@@ -97,7 +97,7 @@ int main(void) {
     fsm_print_info(fsm);
 
     // Generate LaTeX file
-    if (fsm_generate_latex(fsm, "even-number-of-ones.tex") == 0) {
+    if (!fsm_generate_latex(fsm, "even-number-of-ones.tex")) {
         printf("LaTeX file \"even-number-of-ones.tex\" generated successfully!\n");
     }
 
@@ -107,6 +107,5 @@ int main(void) {
 
     // Clean up
     fsm_destroy(fsm);
-
     return 0;
 }

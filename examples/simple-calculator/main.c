@@ -26,10 +26,10 @@ int main(void) {
     printf("Validates arithmetic expressions like '1+2*3'\n\n");
 
     // Add states with strategic positioning
-    int start = fsm_add_vertex(fsm, "Start", 0, 0);
-    int digit = fsm_add_vertex(fsm, "Digit", 4, 0);
-    int operator = fsm_add_vertex(fsm, "Operator", 8, 0);
-    int error = fsm_add_vertex(fsm, "Error", 4, -3);
+    size_t start = fsm_add_vertex(fsm, "Start", 0, 0);
+    size_t digit = fsm_add_vertex(fsm, "Digit", 4, 0);
+    size_t operator = fsm_add_vertex(fsm, "Operator", 8, 0);
+    size_t error = fsm_add_vertex(fsm, "Error", 4, -3);
 
     // Configure state properties
     fsm_set_vertex_radius(fsm, start, 0.8);
@@ -42,13 +42,13 @@ int main(void) {
     fsm_set_final_state(fsm, digit); // Only accept if ending on digit
 
     // Add transitions
-    int e1 = fsm_add_edge(fsm, start, digit, "0-9");
-    int e2 = fsm_add_edge(fsm, start, error, "+,-,*,/");
-    int e3 = fsm_add_edge(fsm, digit, operator, "+,-,*,/");
-    int e4 = fsm_add_edge(fsm, digit, digit, "0-9");
-    int e5 = fsm_add_edge(fsm, operator, digit, "0-9");
-    int e6 = fsm_add_edge(fsm, operator, error, "+,-,*,/");
-    int e7 = fsm_add_edge(fsm, error, error, "any");
+    size_t e1 = fsm_add_edge(fsm, start, digit, "0-9");
+    size_t e2 = fsm_add_edge(fsm, start, error, "+,-,*,/");
+    size_t e3 = fsm_add_edge(fsm, digit, operator, "+,-,*,/");
+    size_t e4 = fsm_add_edge(fsm, digit, digit, "0-9");
+    size_t e5 = fsm_add_edge(fsm, operator, digit, "0-9");
+    size_t e6 = fsm_add_edge(fsm, operator, error, "+,-,*,/");
+    size_t e7 = fsm_add_edge(fsm, error, error, "any");
 
     // Unused edges for clarity
     (void)e1;
@@ -65,7 +65,7 @@ int main(void) {
     fsm_print_info(fsm);
 
     // Generate LaTeX output
-    if (fsm_generate_latex(fsm, "simple-calculator.tex") == 0) {
+    if (!fsm_generate_latex(fsm, "simple-calculator.tex")) {
         printf("LaTeX file generated successfully!\n");
     }
 

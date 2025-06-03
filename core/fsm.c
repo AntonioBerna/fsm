@@ -44,7 +44,7 @@ fsm_t *fsm_create(const char *name) {
     // Initialize dynamic arrays
     fsm->vertex_capacity = INITIAL_VERTICES_CAPACITY;
     fsm->edge_capacity = INITIAL_EDGES_CAPACITY;
-    
+
     fsm->vertices = (vertex_t *)malloc(fsm->vertex_capacity * sizeof(vertex_t));
     if (!fsm->vertices) {
         fprintf(stderr, "Error: Failed to allocate memory for vertices array\n");
@@ -52,7 +52,7 @@ fsm_t *fsm_create(const char *name) {
         free(fsm);
         return NULL;
     }
-    
+
     fsm->edges = (edge_t *)malloc(fsm->edge_capacity * sizeof(edge_t));
     if (!fsm->edges) {
         fprintf(stderr, "Error: Failed to allocate memory for edges array\n");
@@ -83,19 +83,19 @@ void fsm_destroy(fsm_t *fsm) {
         string_destroy(fsm->name);
 
         // Clean up vertex labels
-        for (int i = 0; i < fsm->vertex_count; ++i) {
+        for (size_t i = 0; i < fsm->vertex_count; ++i) {
             string_destroy(fsm->vertices[i].label);
         }
 
         // Clean up edge labels
-        for (int i = 0; i < fsm->edge_count; ++i) {
+        for (size_t i = 0; i < fsm->edge_count; ++i) {
             string_destroy(fsm->edges[i].label);
         }
 
         // Free dynamic arrays
         free(fsm->vertices);
         free(fsm->edges);
-        
+
         free(fsm);
     }
 }
@@ -109,19 +109,19 @@ void fsm_destroy(fsm_t *fsm) {
 /**
  * @brief Grow the vertices array capacity if needed
  * @param fsm Pointer to the FSM
- * @return 0 on success, -1 on failure
+ * @return 0 on success, 1 on failure
  * @details Uses realloc to double the vertices array capacity when full
  */
-static int fsm_grow_vertices_if_needed(fsm_t *fsm) {
+static size_t fsm_grow_vertices_if_needed(fsm_t *fsm) {
     if (fsm->vertex_count >= fsm->vertex_capacity) {
-        int new_capacity = fsm->vertex_capacity * GROWTH_FACTOR;
+        size_t new_capacity = fsm->vertex_capacity * GROWTH_FACTOR;
         vertex_t *new_vertices = (vertex_t *)realloc(fsm->vertices, new_capacity * sizeof(vertex_t));
-        
+
         if (!new_vertices) {
             fprintf(stderr, "Error: Failed to reallocate memory for vertices array\n");
-            return -1;
+            return 1;
         }
-        
+
         fsm->vertices = new_vertices;
         fsm->vertex_capacity = new_capacity;
     }
@@ -131,19 +131,19 @@ static int fsm_grow_vertices_if_needed(fsm_t *fsm) {
 /**
  * @brief Grow the edges array capacity if needed
  * @param fsm Pointer to the FSM
- * @return 0 on success, -1 on failure
+ * @return 0 on success, 1 on failure
  * @details Uses realloc to double the edges array capacity when full
  */
-static int fsm_grow_edges_if_needed(fsm_t *fsm) {
+static size_t fsm_grow_edges_if_needed(fsm_t *fsm) {
     if (fsm->edge_count >= fsm->edge_capacity) {
-        int new_capacity = fsm->edge_capacity * GROWTH_FACTOR;
+        size_t new_capacity = fsm->edge_capacity * GROWTH_FACTOR;
         edge_t *new_edges = (edge_t *)realloc(fsm->edges, new_capacity * sizeof(edge_t));
-        
+
         if (!new_edges) {
             fprintf(stderr, "Error: Failed to reallocate memory for edges array\n");
-            return -1;
+            return 1;
         }
-        
+
         fsm->edges = new_edges;
         fsm->edge_capacity = new_capacity;
     }
@@ -162,18 +162,18 @@ static int fsm_grow_edges_if_needed(fsm_t *fsm) {
  * @param label Label for the vertex (null-terminated string)
  * @param x X coordinate for visualization
  * @param y Y coordinate for visualization
- * @return Vertex ID on success, -1 on failure
+ * @return Vertex ID on success, 1 on failure
  * @details Creates a new vertex with default properties (radius=0.8,
  *          not initial, not final). The label is safely copied.
  */
-int fsm_add_vertex(fsm_t *fsm, const char *label, const double x, const double y) {
+size_t fsm_add_vertex(fsm_t *fsm, const char *label, const double x, const double y) {
     if (!fsm) {
-        return -1;
+        return 1;
     }
 
     // Grow the vertices array if needed
-    if (fsm_grow_vertices_if_needed(fsm) != 0) {
-        return -1;
+    if (fsm_grow_vertices_if_needed(fsm)) {
+        return 1;
     }
 
     vertex_t *vertex = &fsm->vertices[fsm->vertex_count];
@@ -182,7 +182,7 @@ int fsm_add_vertex(fsm_t *fsm, const char *label, const double x, const double y
     vertex->label = string_create_from_cstr(label);
     if (!vertex->label) {
         fprintf(stderr, "Error: Failed to create vertex label string\n");
-        return -1;
+        return 1;
     }
 
     vertex->x = x;
@@ -200,66 +200,69 @@ int fsm_add_vertex(fsm_t *fsm, const char *label, const double x, const double y
  * @param fsm Pointer to the FSM
  * @param vertex_id ID of the vertex to modify
  * @param radius New radius value for the vertex
- * @return 0 on success, -1 on failure (invalid FSM or vertex ID)
+ * @return 0 on success, 1 on failure (invalid FSM or vertex ID)
  * @details Changes the visual radius of the vertex for rendering.
  *          Useful for emphasizing important states.
  */
-int fsm_set_vertex_radius(fsm_t *fsm, const int vertex_id, const double radius) {
-    if (!fsm) return -1;
+size_t fsm_set_vertex_radius(fsm_t *fsm, const size_t vertex_id, const double radius) {
+    if (!fsm) return 1;
 
-    for (int i = 0; i < fsm->vertex_count; ++i) {
+    for (size_t i = 0; i < fsm->vertex_count; ++i) {
         if (fsm->vertices[i].id == vertex_id) {
             fsm->vertices[i].radius = radius;
             return 0;
         }
     }
-    return -1;
+
+    return 1;
 }
 
 /**
  * @brief Mark a vertex as the initial state
  * @param fsm Pointer to the FSM
  * @param vertex_id ID of the vertex to mark as initial
- * @return 0 on success, -1 on failure (invalid FSM or vertex ID)
+ * @return 0 on success, 1 on failure (invalid FSM or vertex ID)
  * @details Sets the specified vertex as initial and clears the initial
  *          flag from all other vertices (only one initial state allowed).
  */
-int fsm_set_initial_state(fsm_t *fsm, const int vertex_id) {
-    if (!fsm) return -1;
+size_t fsm_set_initial_state(fsm_t *fsm, const size_t vertex_id) {
+    if (!fsm) return 1;
 
     // First, clear all initial states
-    for (int i = 0; i < fsm->vertex_count; ++i) {
+    for (size_t i = 0; i < fsm->vertex_count; ++i) {
         fsm->vertices[i].is_initial = false;
     }
 
     // Set the specified vertex as initial
-    for (int i = 0; i < fsm->vertex_count; ++i) {
+    for (size_t i = 0; i < fsm->vertex_count; ++i) {
         if (fsm->vertices[i].id == vertex_id) {
             fsm->vertices[i].is_initial = true;
             return 0;
         }
     }
-    return -1;
+
+    return 1;
 }
 
 /**
  * @brief Mark a vertex as a final (accepting) state
  * @param fsm Pointer to the FSM
  * @param vertex_id ID of the vertex to mark as final
- * @return 0 on success, -1 on failure (invalid FSM or vertex ID)
+ * @return 0 on success, 1 on failure (invalid FSM or vertex ID)
  * @details Sets the final flag for the specified vertex.
  *          Multiple final states are allowed.
  */
-int fsm_set_final_state(fsm_t *fsm, const int vertex_id) {
-    if (!fsm) return -1;
+size_t fsm_set_final_state(fsm_t *fsm, const size_t vertex_id) {
+    if (!fsm) return 1;
 
-    for (int i = 0; i < fsm->vertex_count; ++i) {
+    for (size_t i = 0; i < fsm->vertex_count; ++i) {
         if (fsm->vertices[i].id == vertex_id) {
             fsm->vertices[i].is_final = true;
             return 0;
         }
     }
-    return -1;
+
+    return 1;
 }
 
 /**
@@ -270,14 +273,15 @@ int fsm_set_final_state(fsm_t *fsm, const int vertex_id) {
  * @details Returns a direct pointer to the vertex structure for
  *          reading or modification. Use with caution.
  */
-vertex_t *fsm_get_vertex(fsm_t *fsm, const int vertex_id) {
+vertex_t *fsm_get_vertex(fsm_t *fsm, const size_t vertex_id) {
     if (!fsm) return NULL;
 
-    for (int i = 0; i < fsm->vertex_count; ++i) {
+    for (size_t i = 0; i < fsm->vertex_count; ++i) {
         if (fsm->vertices[i].id == vertex_id) {
             return &fsm->vertices[i];
         }
     }
+
     return NULL;
 }
 
@@ -293,14 +297,14 @@ vertex_t *fsm_get_vertex(fsm_t *fsm, const int vertex_id) {
  * @param from_vertex_id Source vertex ID
  * @param to_vertex_id Destination vertex ID
  * @param label Label for the transition (null-terminated string)
- * @return Edge ID on success, -1 on failure
+ * @return Edge ID on success, 1 on failure
  * @details Creates a new edge between two existing vertices.
  *          Automatically detects self-loops. The label is safely copied.
  *          Both vertices must exist before creating the edge.
  */
-int fsm_add_edge(fsm_t *fsm, const int from_vertex_id, const int to_vertex_id, const char *label) {
+size_t fsm_add_edge(fsm_t *fsm, const size_t from_vertex_id, const size_t to_vertex_id, const char *label) {
     if (!fsm) {
-        return -1;
+        return 1;
     }
 
     // Verify that both vertices exist
@@ -308,12 +312,12 @@ int fsm_add_edge(fsm_t *fsm, const int from_vertex_id, const int to_vertex_id, c
     vertex_t *to_vertex = fsm_get_vertex(fsm, to_vertex_id);
 
     if (!from_vertex || !to_vertex) {
-        return -1;
+        return 1;
     }
 
     // Grow the edges array if needed
-    if (fsm_grow_edges_if_needed(fsm) != 0) {
-        return -1;
+    if (fsm_grow_edges_if_needed(fsm)) {
+        return 1;
     }
 
     edge_t *edge = &fsm->edges[fsm->edge_count];
@@ -324,7 +328,7 @@ int fsm_add_edge(fsm_t *fsm, const int from_vertex_id, const int to_vertex_id, c
     edge->label = string_create_from_cstr(label);
     if (!edge->label) {
         fprintf(stderr, "Error: Failed to create edge label string\n");
-        return -1;
+        return 1;
     }
 
     edge->is_curved = 0;
@@ -340,21 +344,21 @@ int fsm_add_edge(fsm_t *fsm, const int from_vertex_id, const int to_vertex_id, c
  * @param fsm Pointer to the FSM
  * @param edge_id ID of the edge to modify
  * @param curve_angle Curve angle in degrees
- * @return 0 on success, -1 on failure (invalid FSM or edge ID)
+ * @return 0 on success, 1 on failure (invalid FSM or edge ID)
  * @details Makes the edge curved for better visualization when
  *          multiple edges exist between the same vertices.
  */
-int fsm_set_edge_curved(fsm_t *fsm, const int edge_id, const double curve_angle) {
-    if (!fsm) return -1;
+size_t fsm_set_edge_curved(fsm_t *fsm, const size_t edge_id, const double curve_angle) {
+    if (!fsm) return 1;
 
-    for (int i = 0; i < fsm->edge_count; ++i) {
+    for (size_t i = 0; i < fsm->edge_count; ++i) {
         if (fsm->edges[i].id == edge_id) {
             fsm->edges[i].is_curved = true;
             fsm->edges[i].curve_angle = curve_angle;
             return 0;
         }
     }
-    return -1;
+    return 1;
 }
 
 /**
@@ -365,14 +369,15 @@ int fsm_set_edge_curved(fsm_t *fsm, const int edge_id, const double curve_angle)
  * @details Returns a direct pointer to the edge structure for
  *          reading or modification. Use with caution.
  */
-edge_t *fsm_get_edge(fsm_t *fsm, const int edge_id) {
+edge_t *fsm_get_edge(fsm_t *fsm, const size_t edge_id) {
     if (!fsm) return NULL;
 
-    for (int i = 0; i < fsm->edge_count; ++i) {
+    for (size_t i = 0; i < fsm->edge_count; ++i) {
         if (fsm->edges[i].id == edge_id) {
             return &fsm->edges[i];
         }
     }
+
     return NULL;
 }
 
@@ -386,27 +391,27 @@ edge_t *fsm_get_edge(fsm_t *fsm, const int edge_id) {
  * @brief Generate LaTeX/TikZ code and save to file
  * @param fsm Pointer to the FSM
  * @param filename Base filename (without extension) for output
- * @return 0 on success, -1 on failure
+ * @return 0 on success, 1 on failure
  * @details Generates complete LaTeX document with TikZ code for
  *          FSM visualization. Creates both .tex file and Makefile
  *          for PDF/PNG generation in a 'latex/' subdirectory.
  */
-int fsm_generate_latex(fsm_t *fsm, const char *filename) {
+size_t fsm_generate_latex(fsm_t *fsm, const char *filename) {
     if (!fsm || !filename) {
-        return -1;
+        return 1;
     }
 
     // Create latex directory in current working directory
     const char *latex_dir = "latex";
-    char full_path[512];
-    char makefile_path[512];
+    char full_path[BUFSIZ];
+    char makefile_path[BUFSIZ];
 
     // Create latex directory if it doesn't exist in current directory
     struct stat st = {0};
     if (stat(latex_dir, &st) == -1) {
         if (mkdir(latex_dir, 0755) != 0) {
             fprintf(stderr, "Error: Cannot create latex directory\n");
-            return -1;
+            return 1;
         }
         printf("Created latex directory: %s\n", latex_dir);
     }
@@ -414,7 +419,7 @@ int fsm_generate_latex(fsm_t *fsm, const char *filename) {
     // Extract base name without extension using safe strings
     string_t *filename_str = string_create_from_cstr(filename);
     if (!filename_str) {
-        return -1;
+        return 1;
     }
 
     // Remove .tex extension if present
@@ -427,14 +432,14 @@ int fsm_generate_latex(fsm_t *fsm, const char *filename) {
     string_t *full_path_str = string_create();
     if (!full_path_str) {
         string_destroy(filename_str);
-        return -1;
+        return 1;
     }
 
     string_result_t result = string_format(full_path_str, "%s/%s.tex", latex_dir, string_cstr(filename_str));
     if (result != STRING_SUCCESS) {
         string_destroy(filename_str);
         string_destroy(full_path_str);
-        return -1;
+        return 1;
     }
 
     // Copy to char buffer for fopen
@@ -445,7 +450,7 @@ int fsm_generate_latex(fsm_t *fsm, const char *filename) {
         fprintf(stderr, "Error: Cannot open file %s for writing\n", full_path);
         string_destroy(filename_str);
         string_destroy(full_path_str);
-        return -1;
+        return 1;
     }
 
     // Write LaTeX header
@@ -464,7 +469,7 @@ int fsm_generate_latex(fsm_t *fsm, const char *filename) {
 
     // Write vertices
     fprintf(file, "%% States\n");
-    for (int i = 0; i < fsm->vertex_count; i++) {
+    for (size_t i = 0; i < fsm->vertex_count; ++i) {
         vertex_t *v = &fsm->vertices[i];
 
         fprintf(file, "\\node[state");
@@ -474,29 +479,29 @@ int fsm_generate_latex(fsm_t *fsm, const char *filename) {
         if (v->is_final) {
             fprintf(file, ",accepting");
         }
-        fprintf(file, "] (q%d) at (%.2fcm,%.2fcm) {$%s$};\n", v->id, v->x, v->y, string_cstr(v->label));
+        fprintf(file, "] (q%zu) at (%.2fcm,%.2fcm) {$%s$};\n", v->id, v->x, v->y, string_cstr(v->label));
     }
 
     fprintf(file, "\n%% Transitions\n");
 
     // Write edges
-    for (int i = 0; i < fsm->edge_count; i++) {
+    for (size_t i = 0; i < fsm->edge_count; ++i) {
         edge_t *e = &fsm->edges[i];
 
         if (e->is_self_loop) {
             // Self-loop
-            fprintf(file, "\\path (q%d) edge [loop above] node {$%s$} (q%d);\n", e->from_vertex_id, string_cstr(e->label), e->to_vertex_id);
+            fprintf(file, "\\path (q%zu) edge [loop above] node {$%s$} (q%zu);\n", e->from_vertex_id, string_cstr(e->label), e->to_vertex_id);
         } else if (e->is_curved) {
             // Curved edge
             fprintf(file,
-                    "\\path (q%d) edge [bend left=%.0f] node {$%s$} (q%d);\n",
+                    "\\path (q%zu) edge [bend left=%.0f] node {$%s$} (q%zu);\n",
                     e->from_vertex_id,
                     e->curve_angle,
                     string_cstr(e->label),
                     e->to_vertex_id);
         } else {
             // Straight edge
-            fprintf(file, "\\path (q%d) edge node {$%s$} (q%d);\n", e->from_vertex_id, string_cstr(e->label), e->to_vertex_id);
+            fprintf(file, "\\path (q%zu) edge node {$%s$} (q%zu);\n", e->from_vertex_id, string_cstr(e->label), e->to_vertex_id);
         }
     }
 
@@ -534,27 +539,27 @@ int fsm_generate_latex(fsm_t *fsm, const char *filename) {
         fprintf(makefile, "COMPILER=lualatex\n");
         fprintf(makefile, "OUTPUT_PDF=%s\n", string_cstr(filename_str));
         fprintf(makefile, "INPUT_FILE=%s.tex\n\n", string_cstr(filename_str));
-        
+
         fprintf(makefile, "all: pdf png\n\n");
-        
+
         fprintf(makefile, "pdf:\n");
         fprintf(makefile, "\t$(COMPILER) -jobname=$(OUTPUT_PDF) $(INPUT_FILE)\n");
         fprintf(makefile, "\t$(COMPILER) -jobname=$(OUTPUT_PDF) $(INPUT_FILE)\n\n");
-        
+
         fprintf(makefile, "png: pdf\n");
         fprintf(makefile, "\tpdftoppm $(OUTPUT_PDF).pdf $(OUTPUT_PDF) -png\n\n");
-        
+
         fprintf(makefile, "clean:\n");
         fprintf(makefile, "\t$(RM) *.aux *.log *.out *.fls *.fdb_latexmk *.toc *.gz\n\n");
-        
+
         fprintf(makefile, "clean_pdf:\n");
         fprintf(makefile, "\t$(RM) $(OUTPUT_PDF).pdf\n\n");
-        
+
         fprintf(makefile, "clean_png:\n");
         fprintf(makefile, "\t$(RM) $(OUTPUT_PDF)-*.png\n\n");
-        
+
         fprintf(makefile, "clean_all: clean clean_pdf clean_png\n\n");
-        
+
         fprintf(makefile, ".PHONY: all pdf png clean clean_pdf clean_png clean_all\n");
 
         fclose(makefile);
@@ -592,7 +597,7 @@ void fsm_print_latex(fsm_t *fsm) {
 
     // Print vertices
     printf("%% States\n");
-    for (int i = 0; i < fsm->vertex_count; i++) {
+    for (size_t i = 0; i < fsm->vertex_count; ++i) {
         vertex_t *v = &fsm->vertices[i];
 
         printf("\\node[state");
@@ -602,22 +607,25 @@ void fsm_print_latex(fsm_t *fsm) {
         if (v->is_final) {
             printf(",accepting");
         }
-        printf("] (q%d) at (%.2fcm,%.2fcm) {$%s$};\n", v->id, v->x, v->y, string_cstr(v->label));
+        printf("] (q%zu) at (%.2fcm,%.2fcm) {$%s$};\n", v->id, v->x, v->y, string_cstr(v->label));
     }
 
     printf("\n%% Transitions\n");
 
     // Print edges
-    for (int i = 0; i < fsm->edge_count; i++) {
+    for (size_t i = 0; i < fsm->edge_count; ++i) {
         edge_t *e = &fsm->edges[i];
 
         if (e->is_self_loop) {
-            printf("\\path (q%d) edge [loop above] node {$%s$} (q%d);\n", e->from_vertex_id, string_cstr(e->label), e->to_vertex_id);
+            printf("\\path (q%zu) edge [loop above] node {$%s$} (q%zu);\n", e->from_vertex_id, string_cstr(e->label), e->to_vertex_id);
         } else if (e->is_curved) {
-            printf(
-                "\\path (q%d) edge [bend left=%.0f] node {$%s$} (q%d);\n", e->from_vertex_id, e->curve_angle, string_cstr(e->label), e->to_vertex_id);
+            printf("\\path (q%zu) edge [bend left=%.0f] node {$%s$} (q%zu);\n",
+                   e->from_vertex_id,
+                   e->curve_angle,
+                   string_cstr(e->label),
+                   e->to_vertex_id);
         } else {
-            printf("\\path (q%d) edge node {$%s$} (q%d);\n", e->from_vertex_id, string_cstr(e->label), e->to_vertex_id);
+            printf("\\path (q%zu) edge node {$%s$} (q%zu);\n", e->from_vertex_id, string_cstr(e->label), e->to_vertex_id);
         }
     }
 
@@ -645,22 +653,22 @@ void fsm_print_info(fsm_t *fsm) {
     }
 
     printf("=== fsm_t: %s ===\n", string_cstr(fsm->name));
-    printf("Vertices: %d\n", fsm->vertex_count);
-    printf("Edges: %d\n\n", fsm->edge_count);
+    printf("Vertices: %zu\n", fsm->vertex_count);
+    printf("Edges: %zu\n\n", fsm->edge_count);
 
     printf("--- Vertices ---\n");
-    for (int i = 0; i < fsm->vertex_count; i++) {
+    for (size_t i = 0; i < fsm->vertex_count; ++i) {
         vertex_t *v = &fsm->vertices[i];
-        printf("ID: %d, Label: \"%s\", Position: (%.2f, %.2f), Radius: %.2f", v->id, string_cstr(v->label), v->x, v->y, v->radius);
+        printf("ID: %zu, Label: \"%s\", Position: (%.2f, %.2f), Radius: %.2f", v->id, string_cstr(v->label), v->x, v->y, v->radius);
         if (v->is_initial) printf(", INITIAL");
         if (v->is_final) printf(", FINAL");
         printf("\n");
     }
 
     printf("\n--- Edges ---\n");
-    for (int i = 0; i < fsm->edge_count; i++) {
+    for (size_t i = 0; i < fsm->edge_count; ++i) {
         edge_t *e = &fsm->edges[i];
-        printf("ID: %d, From: %d, To: %d, Label: \"%s\"", e->id, e->from_vertex_id, e->to_vertex_id, string_cstr(e->label));
+        printf("ID: %zu, From: %zu, To: %zu, Label: \"%s\"", e->id, e->from_vertex_id, e->to_vertex_id, string_cstr(e->label));
         if (e->is_curved) printf(", CURVED (%.0f°)", e->curve_angle);
         if (e->is_self_loop) printf(", SELF-LOOP");
         printf("\n");
